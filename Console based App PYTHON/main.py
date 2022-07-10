@@ -20,6 +20,8 @@ password_s = StringVar()
 #     image=img
 # )
 # label.place(x=0, y=0)
+flag = True
+
 
 def user_home():
     ui = Tk()
@@ -80,10 +82,15 @@ def user_home():
                 data_shops[tuple([select_city.get(), select_locations.get()])].remove(select_shops.get())
                 tb.insert(INSERT, "RESELECT OPTIONS\n")
             else:
-                sql = "INSERT INTO bookings VALUES (%s,%s,%s,%s,%s,%s)"
-                db.execute(sql,[select_city.get(),select_locations.get(),select_shops.get(),phoneno.get(),rcnum.get(),service.get()])
-                mydb.commit()
-                tb.insert(INSERT,"Booking Successful\n")
+                sql = "SELECT cities,locations,bodyshopname,servicetype,userid FROM bookings"
+                db.execute(sql)
+                if(tuple([select_city.get(),select_locations.get(),select_shops.get(),service.get(),username_l.get()]) in [i for i in db]):
+                    tb.insert(INSERT, "Already Requested For Service\n")
+                else:
+                    sql = "INSERT INTO bookings VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                    db.execute(sql,[select_city.get(),select_locations.get(),select_shops.get(),phoneno.get(),rcnum.get(),service.get(),username_l.get()])
+                    mydb.commit()
+                    tb.insert(INSERT,"Booking Successful\n")
 
         else:
             tb.insert(INSERT,"Booking Failed\n")
@@ -98,8 +105,27 @@ def user_home():
         Label(ui, text="Select Locations", font=('Arial', 16), width=15).place(x=signup_x, y=signup_y + 50)
         OptionMenu(ui, select_locations, *data_loc[select_city.get()], command=run2).place(x=signup_x + 200, y=signup_y + 50)
 
+    noti = Text(ui, font=('Arial 12'), width=45, height=15, background="#fff")
+    def show():
+        noti.place(x=650, y=80)
+        btnn.configure(command=hide)
+        mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
+        db = mydb.cursor()
+        sql = "SELECT * FROM bookings"
+        db.execute(sql)
+        for i in db:
+            noti.insert(INSERT, str(i)+'\n')
+        mydb.commit()
+        mydb.close()
+    def hide():
+        noti.place_forget()
+        btnn.configure(command=show)
+
+
+    btnn= Button(ui, text="Notifications ", font=('Arial 10'), command=show, width=10, height=1)
+    btnn.place(x=800, y=50)
     Button(ui, text="Logout", font=('Arial 10'), command=ui.destroy, width=10, height=1).place(x=900, y=50)
-    Label(ui, text='Car Wash Booking', font=('Arial', 30)).place(x=400, y=50)
+    Label(ui, text='Car Wash Booking', font=('Arial', 30)).place(x=300, y=50)
     signup_x = 300
     signup_y = 270
 
@@ -235,11 +261,58 @@ def admin_home():
         Button(AS, text="submit", font=('Arial 12'), command=ins, width=10, height=2).place(x=signup_x + 200,
                                                                                             y=signup_y + 100)
         AS.mainloop()
+    def Bookings():
+        BK = Tk()
+        BK.title("Admin side")
+        BK.geometry("1080x1080")
+        BK['bg'] = '#012'
 
+        def labes(sn,yco):
+            def accept_bk():
+                mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
+                db = mydb.cursor()
+                sn.append('Accept')
+                sql = "INSERT INTO accrejdb VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+                db.execute(sql, sn)
+
+                accbtn.destroy()
+                rejbtn.destroy()
+                mydb.commit()
+                mydb.close()
+            li=Label(BK, font=('Arial', 12))
+            li.place(x=100, y=yco)
+            li.configure(text='-'.join(sn))
+            if(sn!="No New Bookings"):
+                accbtn=Button(BK, text="Accept", font=('Arial 10'), command=exit, width=10, height=1)
+                accbtn.place(x=800, y=yco)
+                rejbtn=Button(BK, text="Reject", font=('Arial 10'), command=exit, width=10, height=1)
+                rejbtn.place(x=900, y=yco)
+
+
+        Button(BK, text="Exit", font=('Arial 10'), command=BK.destroy, width=10, height=1).place(x=900, y=20)
+        Label(BK, text='Bookings', font=('Arial', 30)).place(x=100, y=50)
+        mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
+        db = mydb.cursor()
+
+        sql = "SELECT * FROM Bookings"
+        db.execute(sql)
+        _lst=[i for i in db]
+        if(_lst):
+            for i,j in zip(_lst,range(150,1000,50)):
+                s=[]
+                for q in i:
+                    s.append(q)
+                labes(s,j)
+        else:
+            labes("No New Bookings",150)
+        mydb.commit()
+        mydb.close()
+        BK.mainloop()
     Button(ah, text="Logout", font=('Arial 10'), command=ah.destroy, width=10, height=1).place(x=900, y=20)
     Button(ah, text="Show Places", font=('Arial 10'), command=display, width=10, height=1).place(x=800, y=20)
     Button(ah, text="Show Bookings", font=('Arial 10'), command=display2, width=10, height=1).place(x=700, y=20)
-    Button(ah, text="Add Services", font=('Arial 10'), command=AddServices, width=10, height=1).place(x=600, y=20)
+    Button(ah, text="Bookings", font=('Arial 10'), command=Bookings, width=10, height=1).place(x=600, y=20)
+    Button(ah, text="Add Services", font=('Arial 10'), command=AddServices, width=10, height=1).place(x=500, y=20)
     Label(ah, text='ADD Body Shops', font=('Arial', 30)).place(x=400, y=170)
     signup_x = 300
     signup_y = 270
@@ -274,7 +347,7 @@ def registration():
             if re.search('[A-Z]', val[1]) and re.search('[a-z]', val[1]) and re.search('[0-9]', val[1]) and re.search(
                     '[@_!#$%^&*()<>?/\|}{~:]', val[1]) and len(val[1]) >= 8:
                 db.execute(sql, val)
-                tb.insert(INSERT, "Inserted Successfully\n")
+                tb.insert(INSERT, "Registered Successfully\n")
             else:
                 tb.insert(INSERT, "Weak Password Try Again\n")
     except Exception as e:
@@ -305,29 +378,28 @@ def validate():
     mydb.close()
 
 # user_home()
-# admin_home()
-login_x = 80
-login_y = 270
-Label(ws, text='Car Wash Booking', font=('Arial', 30)).place(x=400, y=100)
-# LOGIN
-Label(ws, text='Login', width=15, font=('Arial', 18)).place(x=login_x + 150, y=200)
-
-Label(ws, text="Username", font=('Arial', 16), width=10).place(x=login_x, y=login_y)
-Entry(ws, width=25, font=('Arial 16'), textvariable=username_l).place(x=login_x + 150, y=login_y)
-Label(ws, text="Password", font=('Arial', 16), width=10).place(x=login_x, y=login_y + 50)
-Entry(ws, width=25, font=('Arial 16'), textvariable=password_l).place(x=login_x + 150, y=login_y + 50)
-Button(ws, text="Login", font=('Arial 10'), command=validate, width=10, height=2).place(x=login_x + 200,
-                                                                                        y=login_y + 100)
-# SIGNUP
-signup_x = 600
-signup_y = 270
-Label(ws, text='SignUp', width=15, font=('Arial', 18)).place(x=signup_x + 150, y=200)
-
-Label(ws, text="Username", font=('Arial', 16), width=10).place(x=signup_x, y=signup_y)
-Entry(ws, width=25, font=('Arial 16'), textvariable=username_s).place(x=signup_x + 150, y=signup_y)
-Label(ws, text="Password", font=('Arial', 16), width=10).place(x=signup_x, y=signup_y + 50)
-Entry(ws, width=25, font=('Arial 16'), textvariable=password_s).place(x=signup_x + 150, y=signup_y + 50)
-Button(ws, text="SignUp", font=('Arial 10'), command=registration, width=10, height=2).place(x=signup_x + 200,
-                                                                                             y=signup_y + 100)
+admin_home()
+# login_x = 80
+# login_y = 270
+# Label(ws, text='Car Wash Booking', font=('Arial', 30)).place(x=400, y=100)
+# # LOGIN
+# Label(ws, text='Login', width=15, font=('Arial', 18)).place(x=login_x + 150, y=200)
+#
+# Label(ws, text="Username", font=('Arial', 16), width=10).place(x=login_x, y=login_y)
+# Entry(ws, width=25, font=('Arial 16'), textvariable=username_l).place(x=login_x + 150, y=login_y)
+# Label(ws, text="Password", font=('Arial', 16), width=10).place(x=login_x, y=login_y + 50)
+# Entry(ws, width=25, font=('Arial 16'), textvariable=password_l).place(x=login_x + 150, y=login_y + 50)
+# Button(ws, text="Login", font=('Arial 10'), command=validate, width=10, height=2).place(x=login_x + 200,
+#                                                                                         y=login_y + 100)
+# # SIGNUP
+# signup_x = 600
+# signup_y = 270
+# Label(ws, text='SignUp', width=15, font=('Arial', 18)).place(x=signup_x + 150, y=200)
+#
+# Label(ws, text="Username", font=('Arial', 16), width=10).place(x=signup_x, y=signup_y)
+# Entry(ws, width=25, font=('Arial 16'), textvariable=username_s).place(x=signup_x + 150, y=signup_y)
+# Label(ws, text="Password", font=('Arial', 16), width=10).place(x=signup_x, y=signup_y + 50)
+# Entry(ws, width=25, font=('Arial 16'), textvariable=password_s).place(x=signup_x + 150, y=signup_y + 50)
+# Button(ws, text="SignUp", font=('Arial 10'), command=registration, width=10, height=2).place(x=signup_x + 200,y=signup_y + 100)
 
 ws.mainloop()

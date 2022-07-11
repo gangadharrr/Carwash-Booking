@@ -281,17 +281,34 @@ def admin_home():
             def accept_bk():
                 mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
                 db = mydb.cursor()
-                sn.append('Accept')
-                sql = "INSERT INTO accrejdb VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
-                db.execute(sql, sn)
-                sql="DELETE FROM bookings WHERE cities=%s AND locations=%s AND bodyshopname=%s AND Phoneno=%s AND model=%s AND servicetype=%s AND userid=%s"
-                sn.pop()
-                db.execute(sql, sn)
-                accbtn.destroy()
-                rejbtn.destroy()
-                Label(BK, text='Accept', font=('Arial', 10)).place(x=800, y=yco)
-                mydb.commit()
-                mydb.close()
+                sql = "SELECT COUNT(*) FROM accrejdb where cities=%s AND locations=%s AND bodyshopname=%s"
+                db.execute(sql, sn[:3])
+                if (list(db)[0][0] > 5):
+                    mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
+                    db = mydb.cursor()
+                    sn.append('Reject')
+                    sql = "INSERT INTO accrejdb VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+                    db.execute(sql, sn)
+                    sql = "DELETE FROM bookings WHERE cities=%s AND locations=%s AND bodyshopname=%s AND Phoneno=%s AND model=%s AND servicetype=%s AND userid=%s"
+                    sn.pop()
+                    db.execute(sql, sn)
+                    accbtn.destroy()
+                    rejbtn.destroy()
+                    Label(BK, text='Rejected Because of Booking Limit', font=('Arial', 10)).place(x=800, y=yco)
+                    mydb.commit()
+                    mydb.close()
+                else:
+                    sn.append('Accept')
+                    sql = "INSERT INTO accrejdb VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+                    db.execute(sql, sn)
+                    sql="DELETE FROM bookings WHERE cities=%s AND locations=%s AND bodyshopname=%s AND Phoneno=%s AND model=%s AND servicetype=%s AND userid=%s"
+                    sn.pop()
+                    db.execute(sql, sn)
+                    accbtn.destroy()
+                    rejbtn.destroy()
+                    Label(BK, text='Accept', font=('Arial', 10)).place(x=800, y=yco)
+                    mydb.commit()
+                    mydb.close()
 
             def reject_bk():
                 mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')

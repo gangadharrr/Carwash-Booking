@@ -28,8 +28,8 @@ def user_home():
     ui.title("Car wash Booking")
     ui.geometry("1080x1080")
     ui['bg'] = '#012'
-    tb = Text(ui, font=('Arial 12'), width=30, height=2, background="#fff")
-    tb.place(x=400, y=650)
+    tb = Text(ui, font=('Arial 12'), width=50, height=2, background="#fff")
+    tb.place(x=300, y=650)
     select_city = StringVar(ui)
     select_city.set("Select an Option")
 
@@ -80,17 +80,22 @@ def user_home():
             db.execute(sql, [select_city.get(), select_locations.get(), select_shops.get()])
             if (list(db)[0][0] >= 5):
                 data_shops[tuple([select_city.get(), select_locations.get()])].remove(select_shops.get())
-                tb.insert(INSERT, "RESELECT OPTIONS\n")
+                tb.insert(INSERT, "Five Bookings Exceeded RESELECT OPTIONS\n")
             else:
                 sql = "SELECT cities,locations,bodyshopname,servicetype,userid FROM bookings"
                 db.execute(sql)
                 if(tuple([select_city.get(),select_locations.get(),select_shops.get(),service.get(),username_l.get()]) in [i for i in db]):
                     tb.insert(INSERT, "Already Requested For Service\n")
                 else:
-                    sql = "INSERT INTO bookings VALUES (%s,%s,%s,%s,%s,%s,%s)"
-                    db.execute(sql,[select_city.get(),select_locations.get(),select_shops.get(),phoneno.get(),rcnum.get(),service.get(),username_l.get()])
-                    mydb.commit()
-                    tb.insert(INSERT,"Booking Successful\n")
+                    sql = "SELECT * FROM bodyshops"
+                    db.execute(sql)
+                    if([select_city.get(),select_locations.get(),select_shops.get()] in [i for i in db]):
+                        sql = "INSERT INTO bookings VALUES (%s,%s,%s,%s,%s,%s,%s)"
+                        db.execute(sql,[select_city.get(),select_locations.get(),select_shops.get(),phoneno.get(),rcnum.get(),service.get(),username_l.get()])
+                        mydb.commit()
+                        tb.insert(INSERT,"Booking Successful\n")
+                    else:
+                        tb.insert(INSERT, "Bodyshop Doesn't Exist RESELECT OPTIONS\n")
 
         else:
             tb.insert(INSERT,"Booking Failed\n")
@@ -109,12 +114,17 @@ def user_home():
     def show():
         noti.place(x=650, y=80)
         btnn.configure(command=hide)
+        noti.delete('1.0', END)
         mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
         db = mydb.cursor()
         sql = "SELECT cities,locations,bodyshopname,servicetype,status FROM accrejdb WHERE userid=%s"
         db.execute(sql,[username_l.get()])
         for i in db:
             noti.insert(INSERT, ' '.join(i)+'\n')
+        sql = "SELECT cities,locations,bodyshopname,servicetype FROM bookings WHERE userid=%s"
+        db.execute(sql, [username_l.get()])
+        for i in db:
+            noti.insert(INSERT, ' '.join(i)+" pending"+ '\n')
         mydb.commit()
         mydb.close()
     def hide():
@@ -369,7 +379,7 @@ def registration():
             else:
                 tb.insert(INSERT, "Weak Password Try Again\n")
     except Exception as e:
-        tb.insert(INSERT, "Inserted Failed", e, "\n")
+        tb.insert(INSERT, "Registration Failed", e, "\n")
     mydb.commit()
     mydb.close()
 def validate():

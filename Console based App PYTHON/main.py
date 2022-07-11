@@ -20,7 +20,7 @@ password_s = StringVar()
 #     image=img
 # )
 # label.place(x=0, y=0)
-flag = True
+
 
 
 def user_home():
@@ -78,7 +78,7 @@ def user_home():
         if(all([select_city.get(),select_locations.get(),select_shops.get(),phoneno.get(),rcnum.get(),service.get()])):
             sql = "SELECT COUNT(*) FROM accrejdb where cities=%s AND locations=%s AND bodyshopname=%s"
             db.execute(sql, [select_city.get(), select_locations.get(), select_shops.get()])
-            if (list(db)[0][0] >= 5):
+            if (list(db)[0][0] > 5):
                 data_shops[tuple([select_city.get(), select_locations.get()])].remove(select_shops.get())
                 tb.insert(INSERT, "Five Bookings Exceeded RESELECT OPTIONS\n")
             else:
@@ -89,7 +89,7 @@ def user_home():
                 else:
                     sql = "SELECT * FROM bodyshops"
                     db.execute(sql)
-                    if([select_city.get(),select_locations.get(),select_shops.get()] in [i for i in db]):
+                    if(tuple([select_city.get(),select_locations.get(),select_shops.get()]) in [i for i in db]):
                         sql = "INSERT INTO bookings VALUES (%s,%s,%s,%s,%s,%s,%s)"
                         db.execute(sql,[select_city.get(),select_locations.get(),select_shops.get(),phoneno.get(),rcnum.get(),service.get(),username_l.get()])
                         mydb.commit()
@@ -289,6 +289,7 @@ def admin_home():
                 db.execute(sql, sn)
                 accbtn.destroy()
                 rejbtn.destroy()
+                Label(BK, text='Accept', font=('Arial', 10)).place(x=800, y=yco)
                 mydb.commit()
                 mydb.close()
 
@@ -303,6 +304,7 @@ def admin_home():
                 db.execute(sql, sn)
                 accbtn.destroy()
                 rejbtn.destroy()
+                Label(BK, text='Reject', font=('Arial', 10)).place(x=800, y=yco)
                 mydb.commit()
                 mydb.close()
             li=Label(BK, font=('Arial', 12))

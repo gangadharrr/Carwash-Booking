@@ -22,7 +22,6 @@ password_s = StringVar()
 # label.place(x=0, y=0)
 
 
-
 def user_home():
     ui = Tk()
     ui.title("Car wash Booking")
@@ -156,7 +155,7 @@ def user_home():
     Label(ui, text="RC.NO", font=('Arial', 16), width=15).place(x=signup_x, y=signup_y + 250)
     Entry(ui, width=25, font=('Arial 16'), textvariable=rcnum).place(x=signup_x + 200, y=signup_y + 250)
 
-    Button(ui, text="SignUp", font=('Arial 10'), command=ins, width=10, height=2).place(x=signup_x + 250,
+    Button(ui, text="Confirm Booking", font=('Arial 10'), command=ins, width=10, height=2).place(x=signup_x + 250,
                                                                                          y=signup_y + 300)
 
     ui.mainloop()
@@ -276,7 +275,8 @@ def admin_home():
         BK.title("Admin side")
         BK.geometry("1080x1080")
         BK['bg'] = '#012'
-
+        filter = StringVar(BK)
+        filter.set("No filter")
         def labes(sn,yco):
             def accept_bk():
                 mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
@@ -332,10 +332,47 @@ def admin_home():
                 accbtn.place(x=800, y=yco)
                 rejbtn=Button(BK, text="Reject", font=('Arial 10'), command=reject_bk, width=10, height=1)
                 rejbtn.place(x=900, y=yco)
+        # def filtered():
+        #     Bookings()
+        #     if (filter.get() != "No filter"):
+        #         sql = "SELECT * FROM Bookings where cities=%s"
+        #         db.execute(sql, [filter.get()])
+        #         _lst = [i for i in db]
+        #         print(_lst)
+        #         if (_lst):
+        #             for i, j in zip(_lst, range(150, 1000, 50)):
+        #                 s = []
+        #                 for q in i:
+        #                     s.append(q)
+        #                 labes(s, j)
+        #         else:
+        #             labes("No New Bookings", 150)
+        #         mydb.commit()
+        #         mydb.close()
+        #     else:
+        #         sql = "SELECT * FROM Bookings"
+        #         db.execute(sql)
+        #         _lst = [i for i in db]
+        #         if (_lst):
+        #             for i, j in zip(_lst, range(150, 1000, 50)):
+        #                 s = []
+        #                 for q in i:
+        #                     s.append(q)
+        #                 labes(s, j)
+        #         else:
+        #             labes("No New Bookings", 150)
+        #         mydb.commit()
+        #         mydb.close()
 
-        def refresh():
-            BK.update_idletasks()
-        Button(BK, text="Refresh", font=('Arial 10'), command=refresh, width=10, height=1).place(x=800, y=20)
+        mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
+        db = mydb.cursor()
+        sql = "SELECT DISTINCT cities FROM bodyshops"
+        db.execute(sql)
+        cities=[i[0] for i in db]
+        cities.append("No filter")
+        mydb.commit()
+        mydb.close()
+        # OptionMenu(BK, filter, *cities,command=filtered).place(x=800, y=20)
         Button(BK, text="Exit", font=('Arial 10'), command=BK.destroy, width=10, height=1).place(x=900, y=20)
         Label(BK, text='Bookings', font=('Arial', 30)).place(x=100, y=50)
         mydb = mysql.connector.connect(host="localhost", user="root", database='carwash')
@@ -343,15 +380,15 @@ def admin_home():
 
         sql = "SELECT * FROM Bookings"
         db.execute(sql)
-        _lst=[i for i in db]
-        if(_lst):
-            for i,j in zip(_lst,range(150,1000,50)):
-                s=[]
+        _lst = [i for i in db]
+        if (_lst):
+            for i, j in zip(_lst, range(150, 1000, 50)):
+                s = []
                 for q in i:
                     s.append(q)
-                labes(s,j)
+                labes(s, j)
         else:
-            labes("No New Bookings",150)
+            labes("No New Bookings", 150)
         mydb.commit()
         mydb.close()
         BK.mainloop()
@@ -391,8 +428,7 @@ def registration():
         else:
             sql = "INSERT INTO users VALUES(%s,%s)"
             val = (username_s.get(), password_s.get())
-            if re.search('[A-Z]', val[1]) and re.search('[a-z]', val[1]) and re.search('[0-9]', val[1]) and re.search(
-                    '[@_!#$%^&*()<>?/\|}{~:]', val[1]) and len(val[1]) >= 8:
+            if re.search('[A-Z]', val[1]) and re.search('[a-z]', val[1]) and re.search('[0-9]', val[1]) and re.search('[@_!#$%^&*()<>?/\|}{~:]', val[1]) and len(val[1]) >= 8:
                 db.execute(sql, val)
                 tb.insert(INSERT, "Registered Successfully\n")
             else:

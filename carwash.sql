@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 06, 2022 at 10:59 PM
+-- Generation Time: Feb 14, 2023 at 12:02 PM
 -- Server version: 10.4.14-MariaDB
 -- PHP Version: 7.4.9
 
@@ -24,6 +24,31 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `accrejdb`
+--
+
+CREATE TABLE `accrejdb` (
+  `cities` varchar(50) NOT NULL,
+  `locations` varchar(50) NOT NULL,
+  `bodyshopname` varchar(50) NOT NULL,
+  `Phoneno` varchar(50) NOT NULL,
+  `model` varchar(50) NOT NULL,
+  `servicetype` varchar(50) NOT NULL,
+  `userid` varchar(50) NOT NULL,
+  `status` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `accrejdb`
+--
+
+INSERT INTO `accrejdb` (`cities`, `locations`, `bodyshopname`, `Phoneno`, `model`, `servicetype`, `userid`, `status`) VALUES
+('Dehli', 'Redfort', 'PQR', '9444444444', '49498', 'Foam Wash', 'eswar', 'Accept'),
+('Hyd', 'OldCity', 'ABC', 'dfhdghd', 'dfgdsgsd', 'Basic Wash', 'eswar', 'Accept');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `bodyshops`
 --
 
@@ -38,16 +63,16 @@ CREATE TABLE `bodyshops` (
 --
 
 INSERT INTO `bodyshops` (`cities`, `locations`, `bodyshopname`) VALUES
-('', '', ''),
-('chennai', 'navlur', 'ramudu car wash'),
-('chennai', 'navlur', 'swarup car wash'),
-('hyd', 'navlur', 'ramudu car wash'),
-('hyd', 'navlur', 'swarup car wash'),
-('nqt', 'navlur', 'ramudu car wash'),
-('chennai', 'semmancheri', 'ramudu car wash'),
-('chennai', 'semmancheri', 'swarup car wash'),
-('chennai', 'navlur', 'tyvg'),
-('chennai', 'dx', 'tyvg');
+('Chennai', 'Navlur', 'ABC'),
+('Chennai', 'T-nagar', 'ABC'),
+('Chennai', 'T-nagar', 'PQR'),
+('Chennai', 'Navlur', 'XYZ'),
+('Hyd', 'OldCity', 'ABC'),
+('Hyd', 'Navlur', 'XYZ'),
+('Dehli', 'Redfort', 'PQR'),
+('Dehli', 'Redfort', 'KMN'),
+('Mumbai', 'Navymumbai', 'XUR'),
+('', '', '');
 
 -- --------------------------------------------------------
 
@@ -60,22 +85,29 @@ CREATE TABLE `bookings` (
   `locations` varchar(50) NOT NULL,
   `bodyshopname` varchar(50) NOT NULL,
   `Phoneno` varchar(15) NOT NULL,
-  `model` varchar(50) NOT NULL
+  `model` varchar(50) NOT NULL,
+  `servicetype` varchar(50) NOT NULL,
+  `userid` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `services`
+--
+
+CREATE TABLE `services` (
+  `servicetype` varchar(50) NOT NULL,
+  `price` int(4) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
--- Dumping data for table `bookings`
+-- Dumping data for table `services`
 --
 
-INSERT INTO `bookings` (`cities`, `locations`, `bodyshopname`, `Phoneno`, `model`) VALUES
-('chennai', 'navlur', 'ramudu', '+918919768667', 'hjnfnf'),
-('chennai', 'navlur', 'ramudu', '+918919768667', 'hjnfnf'),
-('chennai', 'navlur', 'ramudu', '+918919768667', 'hjnfnf'),
-('chennai', 'navlur', 'ramudu', '+918919768667', 'hjnfnf'),
-('', '', '', '', ''),
-('nqt', 'dx', 'swarup', '78965323', ''),
-('hyd', 'semmancheri', 'tyvg', '56212323', ''),
-('chennai', 'navlur', 'ramudu', '465145523', 'ghjbhjhjk');
+INSERT INTO `services` (`servicetype`, `price`) VALUES
+('Basic Wash', 240),
+('Foam Wash', 300);
 
 -- --------------------------------------------------------
 
@@ -84,8 +116,8 @@ INSERT INTO `bookings` (`cities`, `locations`, `bodyshopname`, `Phoneno`, `model
 --
 
 CREATE TABLE `users` (
-  `username` varchar(15) NOT NULL,
-  `password` varchar(30) NOT NULL
+  `username` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
@@ -93,13 +125,17 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`username`, `password`) VALUES
-('Admin_GD', 'Carwash@123'),
-('gd', '1234'),
-('ram', '1234');
+('9a7174d1cf08b61c7bf9cafe287f4dce', 'b7a84f4452aa9d48aa8c0f43073bbd8d');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `services`
+--
+ALTER TABLE `services`
+  ADD UNIQUE KEY `servicetype` (`servicetype`);
 
 --
 -- Indexes for table `users`
